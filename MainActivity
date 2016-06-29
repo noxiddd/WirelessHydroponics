@@ -1,0 +1,163 @@
+package com.example.jevaughnsdixon.wirelesshydroponics;
+
+
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.nfc.Tag;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
+import java.io.IOException;
+
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+    SeekBar seek1,seek2,seek3;
+    public TextView temp_text,PH_text,humidity_text;
+    Camera mcam;
+    SurfaceView surfaceView;
+    SurfaceHolder surfaceHolder;
+    boolean prev_on=false;
+    String mess;
+
+    private TCPClient tcpClient;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.content_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        new connectTask().execute("");
+        //new Thread(new updateUI()).start();
+     //   setRequestedOrientation(ActivityInfo.CONFIG_KEYBOARD);
+        seek1=(SeekBar)findViewById(R.id.seekBar);
+        seek2=(SeekBar)findViewById(R.id.seekBar2);
+        seek3=(SeekBar)findViewById(R.id.seekBar3);
+        temp_text=(TextView) findViewById(R.id.textView5);
+        PH_text=(TextView)findViewById(R.id.textView4);
+        humidity_text=(TextView)findViewById(R.id.textView6);
+        temp_text.setText("TEMPE: ");
+        PH_text.setText("PH: ");
+        humidity_text.setText("HUMIDITY: ");
+        seek1.setEnabled(false);
+        seek2.setEnabled(false);
+        seek3.setEnabled(false);
+        surfaceView=(SurfaceView)findViewById(R.id.surfaceView);
+        surfaceHolder=surfaceView.getHolder();
+        surfaceHolder.addCallback(this);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+
+        // do we have a camera?
+
+
+        //mcam.setDisplayOrientation();
+    }
+
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        mcam=Camera.open();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+        if (prev_on)
+          {
+              mcam.stopPreview();
+         }
+        //Camera.Parameters p=mcam.getParameters();
+       // p.setPreviewSize(w,h);
+       // mcam.setParameters(p);
+       // try{
+      //      mcam.setPreviewDisplay(holder);
+       // }
+       // catch (IOException e)
+       // {
+        //    e.printStackTrace();
+       // }
+       // mcam.startPreview();
+       // prev_on=true;
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        //mcam.stopPreview();
+       // prev_on=false;
+       // mcam.release();
+    }
+
+
+    public class connectTask extends AsyncTask<String,String,TCPClient> {
+        private TextView textr=(TextView) findViewById(R.id.textView6);
+        @Override
+        protected TCPClient doInBackground(String... message) {
+
+            //we create a TCPClient object and
+            tcpClient = new TCPClient(new TCPClient.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    publishProgress(message);
+                 //   new Thread(new updateUI()).start();
+
+                }
+            });
+            tcpClient.run();
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+
+            mess=values[0];
+            temp_text.setText(values[0]);
+            //textr.setText("Blahh");
+            Log.i("Client", "Recieved message: " + values[0]);
+            //in the arrayList we add the messaged received from server
+            //arrayList.add(values[0]);
+            // notify the adapter that the data set has changed. This means that new message received
+            // from server was added to the list
+                //mAdapter.notifyDataSetChanged();
+
+        }
+    }
+
+
+    class updateUI implements Runnable
+    {
+           @Override
+        public void run()
+        {
+          while(true) {
+              temp_text.setText(mess);
+              try {
+                  Thread.sleep(1);
+              } catch (InterruptedException e) {
+                  e.printStackTrace();
+              }
+          }
+        }
+    }
+}
+
+
+
