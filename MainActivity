@@ -1,10 +1,13 @@
 package com.example.jevaughnsdixon.wirelesshydroponics;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,22 +21,30 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import org.w3c.dom.Text;
 
 import java.io.IOException;
-
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity  {
     SeekBar seek1,seek2,seek3;
     public TextView temp_text,PH_text,humidity_text;
-    Camera mcam;
-    SurfaceView surfaceView;
-    SurfaceHolder surfaceHolder;
     boolean prev_on=false;
-    String mess;
+    String mess="t";
+    Button b;
+
+    ProgressDialog progressDialog;
+    VideoView videoView;
+    //String VideoURL="http://www.androidbegin.com/tutorial/AndroidCommercial.3gp";
+    //String VideoURL="https://www.youtube.com/live_dashboard";
+    String VideoURL="https://youtu.be/oqbx8if4F3M";
+
 
     private TCPClient tcpClient;
 
@@ -44,25 +55,70 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         new connectTask().execute("");
         //new Thread(new updateUI()).start();
-     //   setRequestedOrientation(ActivityInfo.CONFIG_KEYBOARD);
+        //   setRequestedOrientation(ActivityInfo.CONFIG_KEYBOARD);
         seek1=(SeekBar)findViewById(R.id.seekBar);
         seek2=(SeekBar)findViewById(R.id.seekBar2);
         seek3=(SeekBar)findViewById(R.id.seekBar3);
+        b=(Button) findViewById(R.id.button);
         temp_text=(TextView) findViewById(R.id.textView5);
         PH_text=(TextView)findViewById(R.id.textView4);
         humidity_text=(TextView)findViewById(R.id.textView6);
+        videoView=(VideoView)findViewById(R.id.vid);
+
+
         temp_text.setText("TEMPE: ");
         PH_text.setText("PH: ");
         humidity_text.setText("HUMIDITY: ");
         seek1.setEnabled(false);
         seek2.setEnabled(false);
         seek3.setEnabled(false);
-        surfaceView=(SurfaceView)findViewById(R.id.surfaceView);
-        surfaceHolder=surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
-        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 
+
+        b.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Toast.makeText(MainActivity.this,"mess",Toast.LENGTH_LONG).show();
+                humidity_text.setText(mess);
+
+                progressDialog=new ProgressDialog(MainActivity.this);
+                progressDialog.setTitle("Hydroponic Video");
+                progressDialog.setMessage("Buffering HydroVideo...");
+                progressDialog.setIndeterminate(false);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
+                try
+                {
+                    MediaController mediaController=new MediaController(MainActivity.this);
+                    mediaController.setAnchorView(videoView);
+                    Uri video=Uri.parse(VideoURL);
+                    videoView.setMediaController(mediaController);
+                    videoView.setVideoURI(video);
+
+                }
+                catch(Exception e)
+                {
+                    Log.e("Video Error!!!",e.getMessage());
+                    e.printStackTrace();
+                }
+
+                videoView.requestFocus();
+                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        progressDialog.dismiss();
+                        videoView.start();
+
+                    }
+                });
+
+
+            }
+        }
+        );
         // do we have a camera?
 
 
@@ -70,41 +126,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
 
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        mcam=Camera.open();
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        if (prev_on)
-          {
-              mcam.stopPreview();
-         }
-        //Camera.Parameters p=mcam.getParameters();
-       // p.setPreviewSize(w,h);
-       // mcam.setParameters(p);
-       // try{
-      //      mcam.setPreviewDisplay(holder);
-       // }
-       // catch (IOException e)
-       // {
-        //    e.printStackTrace();
-       // }
-       // mcam.startPreview();
-       // prev_on=true;
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        //mcam.stopPreview();
-       // prev_on=false;
-       // mcam.release();
-    }
 
 
     public class connectTask extends AsyncTask<String,String,TCPClient> {
-        private TextView textr=(TextView) findViewById(R.id.textView6);
+        private String s;
+        private char c;
         @Override
         protected TCPClient doInBackground(String... message) {
 
@@ -115,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 public void messageReceived(String message) {
                     //this method calls the onProgressUpdate
                     publishProgress(message);
-                 //   new Thread(new updateUI()).start();
+
+                    //   new Thread(new updateUI()).start();
 
                 }
             });
@@ -129,14 +156,36 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             super.onProgressUpdate(values);
 
             mess=values[0];
-            temp_text.setText(values[0]);
+            s=values[0];
+            c=s.charAt(0);
+            if(c=='t')
+            {
+                temp_text.setText("TEMPERATURE: "+s.substring(1)+" Celsius");
+            }
+            else if(c=='h')
+            {
+                humidity_text.setText("HUMIDIY: "+s.substring(1));
+            }
+            else if(c=='p')
+            {
+                PH_text.setText("PH LEVEL: "+s.substring(1));
+            }
+            else{
+                temp_text.setText("INVALID");
+                humidity_text.setText("INVALID");
+                PH_text.setText("INVALID");
+            }
+
+
+
+           // temp_text.setText(s);
             //textr.setText("Blahh");
             Log.i("Client", "Recieved message: " + values[0]);
             //in the arrayList we add the messaged received from server
             //arrayList.add(values[0]);
             // notify the adapter that the data set has changed. This means that new message received
             // from server was added to the list
-                //mAdapter.notifyDataSetChanged();
+            //mAdapter.notifyDataSetChanged();
 
         }
     }
@@ -144,20 +193,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     class updateUI implements Runnable
     {
-           @Override
+        @Override
         public void run()
         {
-          while(true) {
-              temp_text.setText(mess);
-              try {
-                  Thread.sleep(1);
-              } catch (InterruptedException e) {
-                  e.printStackTrace();
-              }
-          }
+            while(true) {
+                temp_text.setText(mess);
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
-
-
-

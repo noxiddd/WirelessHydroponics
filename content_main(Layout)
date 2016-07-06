@@ -77,11 +77,21 @@
             android:layout_height="wrap_content"
             android:id="@+id/seekBar4" />
 
-        <SurfaceView
-            android:id="@+id/surfaceView"
+
+
+        <VideoView
+            android:id="@+id/vid"
+            android:layout_height="300dip"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_weight="1"/>
+
+
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="REFRESH"
+            android:id="@+id/button"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 
