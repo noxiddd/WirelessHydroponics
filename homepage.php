@@ -22,10 +22,14 @@ body {
 <?php
 echo "<p>WIRELESS HYDROPONICS HOME</p><p>";
 
-$port = fopen("/dev/ttyACM0", "w"); //You have to check which port your Arduino is connected to and change this (this one is for Ubuntu and Arduino 2009)
+$port = fopen("/dev/ttyACM0", "w+r"); //You have to check which port your Arduino is connected to and change this (this one is for Ubuntu and Arduino 2009)
 if(!$port)
 {
     echo "<p><p>Error...did you plug in arduino?"; die();   
+}
+else{
+echo "below this line  ";
+echo fread($port,10);
 }
 sleep(2);
 $once=7;
@@ -53,21 +57,23 @@ echo "Valve 1 (pin 12):"
 
 <input type="hidden" name="turn" value="on1" />
 
-<input type="Submit" value="on">
+<input type="Submit" value="Add Fertilizer">
 
 </form>
 
 <?php
 
-// Turn Valve OFF ?>
-
-<form class="inline" action="homepage.php" method="POST">
+// Turn Valve OFF
+/*<form class="inline" action="homepage.php" method="POST">
 
 <input type="hidden" name="turn" value="off1" />
 
 <input type="Submit" value="off">
 
-</form>
+</form>*/
+ ?>
+
+
 </div>
 
 
@@ -85,22 +91,25 @@ echo "Valve 2 (pin 11):"
 
 <input type="hidden" name="turn2" value="on2" />
 
-<input type="Submit" value="on">
+<input type="Submit" value="Dilute ">
 
 </form>
 
 <?php
 
-// Turn Valve OFF ?>
-
+// Turn Valve OFF
+/*
 <form class="inline" action="homepage.php" method="POST">
 
 <input type="hidden" name="turn2" value="off2" />
 
 <input type="Submit" value="off">
 
-</form>
+</form>*/
+ ?>
+
 </div>
+
 <div>
 <?php
 // Turn Valve ON 
@@ -111,21 +120,23 @@ echo "Valve 3 (pin 10):"
 
 <input type="hidden" name="turn3" value="on3" />
 
-<input type="Submit" value="on">
+<input type="Submit" value="PH Up">
 
 </form>
 
 <?php
 
-// Turn Valve OFF ?>
-
-<form class="inline" action="homepage.php" method="POST">
+// Turn Valve OFF 
+/*<form class="inline" action="homepage.php" method="POST">
 
 <input type="hidden" name="turn3" value="off3" />
 
 <input type="Submit" value="off">
 
-</form>
+</form>*/
+?>
+
+
 
 </div>
 
@@ -140,21 +151,23 @@ echo "Valve 4 (pin 9)  :"
 
 <input type="hidden" name="turn4" value="on4" />
 
-<input type="Submit" value="on">
+<input type="Submit" value="PH Down">
 
 </form>
 
 <?php
 
-// Turn Valve OFF ?>
-
-<form class="inline" action="homepage.php" method="POST">
+// Turn Valve OFF
+/*<form class="inline" action="homepage.php" method="POST">
 
 <input type="hidden" name="turn4" value="off4" />
 
 <input type="Submit" value="off">
 
-</form>
+</form>*/
+ ?>
+
+
 
 </div>
 
@@ -170,21 +183,23 @@ echo "Pump (pin 8): "
 
 <input type="hidden" name="pump_water" value="on_water" />
 
-<input type="Submit" value="on">
+<input type="Submit" value="Add air">
 
 </form>
 
 <?php
 
-// Turn Valve OFF ?>
-
-<form class="inline" action="homepage.php" method="POST">
+// Turn Valve OFF 
+/*<form class="inline" action="homepage.php" method="POST">
 
 <input type="hidden" name="pump_water" value="off_water" />
 
 <input type="Submit" value="off">
 
-</form>
+</form>*/
+?>
+
+
 
 </div>
 
@@ -318,6 +333,11 @@ header("Location: video.php");
 if($_POST['Test']=="rwtest")
 {
 header("Location: pyhton_test.php");}
+
+/*stty -F /dev/ttyACM0 cs8 9600 ignbrk -brkint -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts
+
+use this in terminal after arduino is reprogrammed guess this is what allow for reprogramming
+*/
 ?>
 
 
