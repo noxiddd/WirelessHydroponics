@@ -1,8 +1,10 @@
 # WirelessHydroponics
 
+<strong>Web/Android App interface for Hydroponics systems that allow user to control/monitor system from a distance over internet</strong>
+
 
 TCP/IP String  communication from android device as client to server 
-Later updates to do video streaming to client(android)
+Later updates to do live video streaming to client(android)
 
 
 
