@@ -1,7 +1,8 @@
 
 
 char c;
-
+int sensorPin=0;//A0
+int sensorVal=0;
 void setup(){
 
 Serial.begin(9600);
@@ -11,9 +12,10 @@ pinMode(13, OUTPUT);
 }
 
 void loop(){
-   Serial.print ("a");
+   sensorVal=analogRead(sensorPin);
+   sensorVal=sensorVal*0.0049;
+   Serial.print(sensorVal);
    if (Serial.available() > 0)
-
     {
        c = Serial.read();
       // Serial2.println(c);
@@ -23,49 +25,49 @@ void loop(){
       delay(100); 
     }
 /////////////////+++++++++++++++++++++++++++++++++++
-    if (c=='n')////valve 1
+    if (c=='n')////valve 1//Add fertilizer
     {
       digitalWrite(12,HIGH);
-    }else
-    if (c=='f')
-    {
+      delay(2000);
       digitalWrite(12,LOW);
+      c='q';//q for off state
     }
 
     //////////////++++++++++++++++++++++++++seconds
-    if(c=='a')///valve 2
+    if(c=='a')///Dilute,Add Water
     {
      digitalWrite(11,HIGH); 
-    }else
-    if(c=='b')
-    {
-      digitalWrite(11,LOW);  
+     delay(2000);
+     digitalWrite(11,LOW);  
+     c='q';
     }
 
-      if(c=='c')
+    if(c=='c')//PH UP
     {
      digitalWrite(10,HIGH); 
-    }else
-    if(c=='d')
-    {
-      digitalWrite(10,LOW);      
-    } 
-    if(c=='e')
+     delay(2000);
+     digitalWrite(10,LOW);
+     c='q';
+       
+    }
+
+     
+    if(c=='e')//PH Down
     {
      digitalWrite(9,HIGH); 
-    }else
-    if(c=='g')
-    {
-      digitalWrite(9,LOW);      
-    } 
-     if(c=='h')
+     delay(2000);
+     digitalWrite(9,LOW); 
+     c='q';     
+    }
+    
+     
+     if(c=='h')//Add air
     {
      digitalWrite(8,HIGH); 
-    }else
-    if(c=='i')//wate
-    {
-      digitalWrite(8,LOW);      
-    } 
+     delay(2000);
+     digitalWrite(8,LOW); 
+     c='q'; 
+    }
     
     
    
