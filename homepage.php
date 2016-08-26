@@ -1,6 +1,8 @@
 <html>
 
 <head>
+
+
 <link rel="shortcut icon" type="image/x-icon" href="hydro-4.png" />
 <title>Hydroponics</title>
 
@@ -13,14 +15,36 @@ body {
   
 }
 </style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js">
+</script>
+<script>
+
+ $(document).ready(
+            function() {
+                setInterval(function() {
+                    var div = document.getElementById("dom-target");
+                    var myData = div.textContent;
+                    var randomnumber = Math.floor(Math.random() * 100);
+                    $('#show').text(
+                            'Sensor Value: '
+                                    + randomnumber+" "+myData);
+                }, 1000);
+            });
+
+</script>
+
 </head>
 
-<body bgcolor="#000000" text="green">
+<body bgcolor="#000000" text="blue">
 
 <center>
 <img src="images/hydro.jpg" alt="Test" WIDTH=500 HEIGHT=400>
+<p>WIRELESS HYDROPONICS HOME</p>
+<div id="dom-target" style="display: none;">
 <?php
-echo "<p>WIRELESS HYDROPONICS HOME</p><p>";
+
+
 
 $port = fopen("/dev/ttyACM0", "w+r"); //You have to check which port your Arduino is connected to and change this (this one is for Ubuntu and Arduino 2009)
 if(!$port)
@@ -28,12 +52,17 @@ if(!$port)
     echo "<p><p>Error...did you plug in arduino?"; die();   
 }
 else{
-echo "below this line  ";
-echo fread($port,10);
+
+
+echo fread($port,1);
 }
 sleep(2);
 $once=7;
 ?>
+</div>
+
+
+<div id="show" align="center"></div>
 
 </center>
 
@@ -223,7 +252,7 @@ echo "Pump (pin 8): "
 
 </form>
 
-
+<div>
 <?php
 //////++++++++++++first valve operations
 if ($_POST['turn']=="on1"){
@@ -302,7 +331,7 @@ fwrite($port, "g");
 //////+++++++++++++++++Water Pump operations
 if ($_POST['pump_water']=="on_water"){
 
-echo "<p>Water pump on";
+echo "<p>Water";
 
 fwrite($port, "h");
 //sleep(10);
@@ -317,10 +346,18 @@ fwrite($port, "i");
 //sleep(10);
 }
 
+if (fread($port,1)<5)
+{  
+  echo "<p>Sensor Off</p>";
+}
+else
+{
+  echo "<p>Sensor on</p>";
+}
+echo "<p>Value on sensor:";
+echo fread($port,1);
 
-echo fread($port,10);
-
-echo "<p>3";
+//echo "<p>3";
 
 fclose($port);
 
@@ -339,9 +376,14 @@ header("Location: pyhton_test.php");}
 use this in terminal after arduino is reprogrammed guess this is what allow for reprogramming
 */
 ?>
+</div>
 
+
+ 
 
 </body>
+
+
 
 
 </html>
