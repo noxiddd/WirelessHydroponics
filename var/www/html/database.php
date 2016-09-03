@@ -73,7 +73,7 @@ else
   }
 }
 
-$sql="DELETE FROM Sensors";
+//$sql="DELETE FROM Sensors";
 
 $sql="INSERT INTO Sensors (SensorID,SensorType,Value) VALUES ('$sensorID1','Water_Level','$sensor_1')";
 query_check($conn,$sql);
