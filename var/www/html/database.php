@@ -17,8 +17,8 @@ var auto_refresh = setInterval(
 
 session_start();
 
-$user_name = "root";
-$password = "YqW23777";
+$user_name = "";
+$password = "";
 $database = "hydroponics";
 $server = "localhost";
 //sensor data
